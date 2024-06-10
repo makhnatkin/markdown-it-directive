@@ -335,7 +335,7 @@ function blockDirectiveRule(state, startLine, endLine, silent) {
 
   // parseLinkLabel need a StateInline state instead of StateBlock state
   // which don't have a skipToken method
-  const inlineState = new StateInline(src, md, state.env, {});
+  const inlineState = new StateInline(src, md, state.env, []);
   const rst = parseDirective(inlineState, src, pos, max, true);
   if (rst === null) return false;
   const { directiveName, content: inlineContent, dests, attrs, contentStart: inlineContentStart, contentEnd: inlineContentEnd } = rst;
@@ -389,7 +389,7 @@ function blockDirectiveRule(state, startLine, endLine, silent) {
   return true;
 }
 
-function load(md, options) {
+function load(md) {
   if (md.inlineDirectives) return;
 
   // init
