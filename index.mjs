@@ -1,10 +1,5 @@
-'use strict';
-
-const parseLinkLabel = require('markdown-it/lib/helpers/parse_link_label');
-const parseLinkTitle = require('markdown-it/lib/helpers/parse_link_title');
-const parseLinkDestination = require('markdown-it/lib/helpers/parse_link_destination');
-const { normalizeReference } = require('markdown-it/lib/common/utils');
-const StateInline = require('markdown-it/lib/rules_inline/state_inline');
+import { normalizeReference } from 'markdown-it/lib/common/utils.mjs';
+import StateInline from 'markdown-it/lib/rules_inline/state_inline.mjs';
 
 function isBlank(code) {
   switch (code) {
@@ -60,13 +55,13 @@ function parseLinkDestinationLabel(src, pos, max) {
     const c = src.charCodeAt(pos);
     if (c === 0x22/* " */ || c === 0x27/* ' */ || c === 0x28/* ( */) {
       // String
-      const rst = parseLinkTitle(src, pos, max);
+      const rst = md.helpers.parseLinkTitle(src, pos, max);
       if (!rst.ok) return null;
       pos = rst.pos;
       dests.push([ 'string', rst.str ]);
     } else {
       // Link
-      const rst = parseLinkDestination(src, pos, max);
+      const rst = md.helpers.parseLinkDestination(src, pos, max);
       if (!rst.ok) return null;
       pos = rst.pos;
       dests.push([ 'link', rst.str ]);
@@ -166,7 +161,7 @@ function parseAttrLabel(src, pos, max) {
       let value;
       const c = src.charCodeAt(pos);
       if (c === 0x22/* " */ || c === 0x27/* ' */) {
-        rst = parseLinkTitle(src, pos, max);
+        rst = md.helpers.parseLinkTitle(src, pos, max);
         if (!rst.ok) return null;
         value = rst.str;
         pos = rst.pos;
@@ -206,7 +201,7 @@ function parseDirective(state, src, pos, max, allowSpaceBetween) {
 
   // Link text (optional)
   const labelStart = pos,
-        labelEnd = parseLinkLabel(state, labelStart);
+        labelEnd = md.helpers.parseLinkLabel(state, labelStart);
   let content;
   let contentStart, contentEnd;
   if (labelEnd >= 0) {
@@ -226,7 +221,7 @@ function parseDirective(state, src, pos, max, allowSpaceBetween) {
     pos = destsResult.pos;
   } else if (typeof state.env.references !== 'undefined') {
     // Reference mode
-    const destsEnd = parseLinkLabel(state, destsStart);
+    const destsEnd = md.helpers.parseLinkLabel(state, destsStart);
     if (destsEnd >= 0) {
       const refText = src.slice(destsStart + 1, destsEnd);
       const ref = state.env.references[normalizeReference(refText)];
@@ -358,13 +353,14 @@ function blockDirectiveRule(state, startLine, endLine, silent) {
   if (oneLine) {
     // Tokenlize
     if (!silent) {
-      handler(
+      const isValidContent = handler(
         state, undefined, contentTitle, inlineContent, dests, attrs,
         undefined, undefined,
         contentTitleStart, contentTitleEnd,
         inlineContentStart, inlineContentEnd,
         startLine, startLine + 1
       );
+      if (isValidContent === false) return false;
     }
 
     state.line = startLine + 1;
@@ -400,4 +396,4 @@ function load(md) {
   md.block.ruler.before('paragraph', 'block_directive', blockDirectiveRule);
 }
 
-module.exports = load;
+export default load;
