@@ -1,6 +1,7 @@
 import DefaultMarkdownIt from 'markdown-it';
 import * as StateInline from 'markdown-it/lib/rules_inline/state_inline';
 import * as StateBlock from 'markdown-it/lib/rules_block/state_block';
+import {PluginSimple} from 'markdown-it/lib';
 
 interface InlineHandlerArgs {
     state: StateInline;
@@ -51,6 +52,6 @@ declare module 'markdown-it' {
     export interface MarkdownItWithDirectives extends MarkdownIt {}
 }
 
-declare function load(md: MarkdownIt): void;
+declare function load(): PluginSimple;
 
 export default load;
